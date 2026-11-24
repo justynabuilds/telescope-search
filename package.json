@@ -5,7 +5,7 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "Justyna Dabrowska",
-  "homepage": "https://telescope-search.vercel.app",
+  "homepage": "https://telescopesearch.vercel.app",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/justynabuilds/telescope-search.git"

@@ -45,7 +45,7 @@ const FONT_LINKS: Record<string, string> = {
   "Instrument Sans": "https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&display=swap",
 }
 /** Where the built script is served, so pasted HTML works anywhere. */
-const SCRIPT_URL = "https://telescope-search.vercel.app/telescope-search.iife.js"
+const SCRIPT_URL = "https://telescopesearch.vercel.app/telescope-search.iife.js"
 
 const DEFAULT_COLOURS: Record<string, string> = { tube: "#FFFFFF", ring: "#DFE1E6", text: "#141415", muted: "#8E8E95" }
 const COLOUR_VARS: Record<string, string> = { tube: "--ts-tube", ring: "--ts-ring", text: "--ts-text", muted: "--ts-muted" }

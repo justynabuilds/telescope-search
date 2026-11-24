@@ -4,14 +4,14 @@ A site search that pulls out like a telescope. Closed, it is a short pearl field
 
 It ships as a plain web component that works on any site (Webflow embed, WordPress, Squarespace, Shopify, plain HTML) and as a React component. Both run on the same framework-free engine and render inside a shadow root, so the host site's CSS can't break them.
 
-**[Live demo](https://telescope-search.vercel.app)** · **[Playground](https://telescope-search.vercel.app/playground)** (every option in a panel, with copyable HTML and React code)
+**[Live demo](https://telescopesearch.vercel.app)** · **[Playground](https://telescopesearch.vercel.app/playground)** (every option in a panel, with copyable HTML and React code)
 
 ## Quick start
 
 Any site, including a Framer or Webflow embed. The pages to search are ordinary `<a>` tags, so they still make sense to search engines and without JavaScript:
 
 ```html
-<script src="https://telescope-search.vercel.app/telescope-search.iife.js"></script>
+<script src="https://telescopesearch.vercel.app/telescope-search.iife.js"></script>
 <telescope-search>
   <a href="/work" data-description="Selected projects">Work</a>
   <a href="/pricing" data-description="Three fixed packages" data-keywords="cost price rates">Pricing</a>
@@ -36,7 +36,7 @@ import { TelescopeSearch } from "@justbuilt/telescope-search/react"
 />
 ```
 
-In an embed (Framer, Webflow), the search lives in its own frame: give the embed room to open (the open length plus about 24 px, by 380 px tall), add `target="_top"` to the links so they open the real page, and set a font (an embed can't inherit your site's). The [playground](https://telescope-search.vercel.app/playground)'s HTML does all three.
+In an embed (Framer, Webflow), the search lives in its own frame: give the embed room to open (the open length plus about 24 px, by 380 px tall), add `target="_top"` to the links so they open the real page, and set a font (an embed can't inherit your site's). The [playground](https://telescopesearch.vercel.app/playground)'s HTML does all three.
 
 To hide the links for the moment before the script runs, add `telescope-search:not(:defined){visibility:hidden}` to your CSS.
 
