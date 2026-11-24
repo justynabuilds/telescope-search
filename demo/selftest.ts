@@ -94,6 +94,17 @@ async function run() {
   await wait(1800)
   check("a pick closes it back to the idle pose", !ts.open && ts.pose.tubes.every((x, k) => x === ts.pose.rest[k]) && input.value === "")
 
+  ts.open = true
+  await wait(1200)
+  type("wo")
+  await wait(400)
+  const cancel = (e: Event) => e.preventDefault()
+  ts.addEventListener("select", cancel)
+  rows()[0].click()
+  ts.removeEventListener("select", cancel)
+  check("a mouse pick closes without a focus ring on the eyepiece", !ts.open && root.activeElement !== base)
+  await wait(1800)
+
   document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "/", bubbles: true }))
   await wait(200)
   check("/ opens it from anywhere on the page", ts.open)

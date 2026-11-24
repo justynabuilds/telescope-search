@@ -181,7 +181,7 @@ export class TelescopeSearchElement extends HTMLElement {
     })
     this.list.addEventListener("click", (e) => {
       const r = (e.target as Element).closest<HTMLElement>(".row")
-      if (r?.dataset.i) this.choose(+r.dataset.i)
+      if (r?.dataset.i) this.choose(+r.dataset.i, false)
     })
     this.input.addEventListener("input", () => this.runSearch())
     this.input.addEventListener("keydown", (e) => this.onKey(e))
@@ -346,7 +346,8 @@ export class TelescopeSearchElement extends HTMLElement {
 
   // ---------- behaviour ----------
 
-  private setOpen(open: boolean) {
+  /** `refocus`: closing from the keyboard hands focus back to the eyepiece; a click elsewhere just lets go of it. */
+  private setOpen(open: boolean, refocus = true) {
     if (open === this.open) {
       if (open) this.input.focus({ preventScroll: true })
       return
@@ -369,7 +370,10 @@ export class TelescopeSearchElement extends HTMLElement {
       this.closing = true
       this.reflect(false)
       this.input.tabIndex = -1
-      if (this.root.activeElement === this.input) this.base.focus({ preventScroll: true })
+      if (this.root.activeElement === this.input) {
+        if (refocus) this.base.focus({ preventScroll: true })
+        else this.input.blur()
+      }
       const wait = this.shown && !this.motion.matches ? SHEET_OUT_MS : 0
       this.showSheet(false)
       this.countEl.style.opacity = "0"
@@ -506,12 +510,12 @@ export class TelescopeSearchElement extends HTMLElement {
   }
 
   /** Fires `select`; navigates to the link unless a listener cancelled it. Every pick closes the search. */
-  private choose(i: number) {
+  private choose(i: number, fromKeyboard = true) {
     const hit = this.hits[i]
     if (!hit) return
     const { label, href, description, target } = hit.item
     const ok = this.dispatchEvent(new CustomEvent<TelescopeSelectDetail>("select", { detail: { index: hit.index, label, href, description }, bubbles: true, composed: true, cancelable: true }))
-    this.setOpen(false)
+    this.setOpen(false, fromKeyboard)
     if (!ok || !href) return
     if (target === "_blank") window.open(href, "_blank", "noopener")
     else if (target === "_top" || target === "_parent") (target === "_top" ? window.top : window.parent)!.location.href = new URL(href, location.href).href
@@ -537,7 +541,7 @@ export class TelescopeSearchElement extends HTMLElement {
   }
 
   private onOutside = (e: PointerEvent) => {
-    if (this.open && !e.composedPath().includes(this)) this.setOpen(false)
+    if (this.open && !e.composedPath().includes(this)) this.setOpen(false, false)
   }
   private onPointerUp = () => {
     if (this.engine.setPress(false)) this.kick()
