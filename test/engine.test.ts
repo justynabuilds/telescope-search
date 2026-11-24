@@ -121,3 +121,23 @@ test("a long frame is capped, so a stall never throws a tube through its stop", 
   e.step(5)
   assert.ok(e.d[2] <= 300 && e.d[2] > 118)
 })
+
+test("closing, the long tube glides home: it never passes its idle length", () => {
+  const e = make()
+  e.setOpen(true)
+  run(e, 2)
+  e.setOpen(false)
+  let low = Infinity
+  run(e, 2.5, () => (low = Math.min(low, e.d[2])))
+  assert.ok(low >= 118 - 0.01, `dipped to ${low.toFixed(2)}`)
+})
+
+test("hover off glides back without overshoot", () => {
+  const e = make()
+  e.setHover(true)
+  run(e, 1)
+  e.setHover(false)
+  let low = Infinity
+  run(e, 1, () => (low = Math.min(low, e.d[2])))
+  assert.ok(low >= 118 - 0.01, `dipped to ${low.toFixed(2)}`)
+})

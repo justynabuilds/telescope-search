@@ -4,6 +4,9 @@ All notable changes to this project are listed here. Versions follow [semantic v
 
 ## Unreleased
 
+- Smoother open and close. The long tube now glides home without overshooting, the text fades between "Search" and "Search pages" instead of swapping, and the tubes start back while the results sheet is still tucking in.
+- The click sound is set up when nothing is moving, so the first pull no longer stutters.
+
 ## 0.1.0
 
 First version.

@@ -22,8 +22,42 @@ const LIP: Triple = [5, 5, 6]
 const COLLAR = 15
 /** Gap between the long tube's far end and the text. */
 const INSET = 18
-/** The sheet goes back under the tube before the tubes slide home. */
-const SHEET_OUT_MS = 230
+/** The sheet starts back under the tube first; the tubes follow while it is still on its way. */
+const SHEET_OUT_MS = 150
+/** The text swaps while the long tube is moving: the old text fades out by this much of the pull, the new one fades in after. */
+const TEXT_SWAP = 0.3
+
+// ---------- sound ----------
+// One audio context and one click for the whole page. Starting an AudioContext blocks for a frame or more,
+// so it is never made during a pull: it is made just after the visitor's first tap anywhere (browsers only allow
+// sound after one), or once the telescope comes to rest. If the very first open is also the first gesture,
+// that one pull is silent rather than stuttering.
+let audio: { ac: AudioContext; click: AudioBuffer } | null = null
+function prepareAudio() {
+  if (audio) return audio
+  try {
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    const ac = new AC()
+    const n = Math.floor(ac.sampleRate * 0.018)
+    const click = ac.createBuffer(1, n, ac.sampleRate)
+    const ch = click.getChannelData(0)
+    for (let i = 0; i < n; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 4)
+    audio = { ac, click }
+  } catch {}
+  return audio
+}
+let audioWarmed = false
+function warmAudioOnFirstGesture() {
+  if (audioWarmed) return
+  audioWarmed = true
+  const warm = () => {
+    removeEventListener("pointerdown", warm, true)
+    if (![...instances].some((x) => x.getAttribute("sound") !== "off")) return
+    // after the gesture's own frame, and before the click that would open the search
+    setTimeout(prepareAudio, 0)
+  }
+  addEventListener("pointerdown", warm, true)
+}
 
 const instances = new Set<TelescopeSearchElement>()
 let shortcutsBound = false
@@ -83,7 +117,6 @@ export class TelescopeSearchElement extends HTMLElement {
   private last = 0
   private syncing = false
   private built = false
-  private ac: AudioContext | null = null
   private lastPointer = "mouse"
   private motion = matchMedia("(prefers-reduced-motion: reduce)")
   private mo = new MutationObserver(() => this.readItems())
@@ -179,6 +212,7 @@ export class TelescopeSearchElement extends HTMLElement {
   connectedCallback() {
     instances.add(this)
     bindShortcuts()
+    warmAudioOnFirstGesture()
     if (!this.built) this.build()
     this.mo.observe(this, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["href", "target", "data-description", "data-keywords"] })
     this.ro.observe(this)
@@ -200,8 +234,6 @@ export class TelescopeSearchElement extends HTMLElement {
     cancelAnimationFrame(this.raf)
     this.raf = 0
     clearTimeout(this.closeTimer)
-    this.ac?.close().catch(() => {})
-    this.ac = null
   }
   attributeChangedCallback(name: string) {
     if (!this.built) return
@@ -327,7 +359,7 @@ export class TelescopeSearchElement extends HTMLElement {
         this.layout() // the field may have moved since the last measure
         this.engine.setOpen(true)
       }
-      this.input.placeholder = this.placeholderText
+      if (this.motion.matches) this.input.placeholder = this.placeholderText
       this.reflect(true)
       this.input.tabIndex = 0
       this.input.focus({ preventScroll: true })
@@ -343,8 +375,7 @@ export class TelescopeSearchElement extends HTMLElement {
       this.countEl.style.opacity = "0"
       this.closeTimer = window.setTimeout(() => {
         this.closing = false
-        this.input.value = ""
-        this.input.placeholder = this.label
+        // the typed text fades out and the label fades back in as the tube slides home (see render)
         this.list.replaceChildren()
         this.hits = []
         this.active = -1
@@ -520,18 +551,14 @@ export class TelescopeSearchElement extends HTMLElement {
       try { navigator.vibrate?.(6) } catch {}
     }
     if (this.getAttribute("sound") === "off") return
+    const a = audio
+    if (!a) return
     try {
-      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-      this.ac ??= new AC()
-      const ac = this.ac
+      const { ac, click } = a
       if (ac.state === "suspended") ac.resume()
       const t = ac.currentTime
-      const n = Math.floor(ac.sampleRate * 0.018)
-      const buf = ac.createBuffer(1, n, ac.sampleRate)
-      const ch = buf.getChannelData(0)
-      for (let i = 0; i < n; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 4)
       const src = ac.createBufferSource()
-      src.buffer = buf
+      src.buffer = click
       const bp = ac.createBiquadFilter()
       bp.type = "bandpass"
       bp.frequency.value = 3200
@@ -557,6 +584,8 @@ export class TelescopeSearchElement extends HTMLElement {
     this.last = now
     this.render()
     this.raf = busy ? requestAnimationFrame(this.tick) : 0
+    // at rest, and the visitor has interacted: a safe moment to get the sound ready for next time
+    if (!busy && !audio && this.getAttribute("sound") !== "off" && navigator.userActivation?.hasBeenActive !== false) setTimeout(prepareAudio, 0)
   }
 
   /** Engine values to CSS: tube lengths, and the text, key hint and count riding on the long tube. */
@@ -596,5 +625,34 @@ export class TelescopeSearchElement extends HTMLElement {
     }
     this.input.style.left = `${left}px`
     this.input.style.width = `${Math.max(0, width)}px`
+    this.input.style.opacity = String(this.textOpacity(pn, open))
+  }
+
+  /**
+   * The text never swaps in place: opening, "Search" fades out as the tube starts and "Search pages" fades in as it
+   * travels; closing, the typed words fade out and the label fades back in as the tube comes home.
+   */
+  private textOpacity(pn: number, open: boolean) {
+    const v = this.input
+    if (this.motion.matches) {
+      if (!open && !this.closing && this.engine.progress === 0) {
+        v.value = ""
+        v.placeholder = this.label
+      }
+      return 1
+    }
+    if (open) {
+      if (v.value) return 1
+      if (pn >= TEXT_SWAP && v.placeholder !== this.placeholderText) v.placeholder = this.placeholderText
+      return Math.min(1, Math.abs(pn - TEXT_SWAP) / TEXT_SWAP)
+    }
+    if (this.closing || this.engine.isOpen) return 1
+    const out = 1 - TEXT_SWAP
+    if (pn > out) return v.value || v.placeholder !== this.label ? Math.min(1, (pn - out) / TEXT_SWAP) : 1
+    if (v.value || v.placeholder !== this.label) {
+      v.value = ""
+      v.placeholder = this.label
+    }
+    return Math.min(1, (out - pn) / TEXT_SWAP)
   }
 }

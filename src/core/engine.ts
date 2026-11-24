@@ -22,8 +22,10 @@ export interface EngineOptions {
 
 export const OPEN_STIFFNESS = 150
 export const CLOSE_STIFFNESS = 170
-/** Fraction of critical damping: a touch under 1 keeps the pull lively without wobble. */
+/** Fraction of critical damping for a tube driven into a stop: lively, so it knocks. */
 export const DAMPING_RATIO = 0.62
+/** A tube that lands with no stop to meet (the long tube coming home, hover, press) glides in without overshoot. */
+export const FREE_DAMPING_RATIO = 1
 /** How much speed a tube keeps when it knocks against a stop. */
 export const RESTITUTION = 0.26
 /** Slowest knock, in px per second, that still makes a click. */
@@ -141,12 +143,12 @@ export class TelescopeEngine {
       return false
     }
     const K = this.isOpen ? OPEN_STIFFNESS : CLOSE_STIFFNESS
-    const C = 2 * Math.sqrt(K) * DAMPING_RATIO
     let busy = false
     for (const k of [2, 1, 0]) {
       if (!this.go[k]) continue
       const goal = this.goal(k)
       const target = this.target(k)
+      const C = 2 * Math.sqrt(K) * (goal === target ? FREE_DAMPING_RATIO : DAMPING_RATIO)
       // four substeps keep the hard stops crisp at low frame rates
       const h = dt / 4
       for (let s = 0; s < 4; s++) {
