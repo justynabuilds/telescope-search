@@ -1,0 +1,28 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build:site",
+  "outputDirectory": "site-dist",
+  "rewrites": [
+    {
+      "source": "/playground",
+      "destination": "/demo/playground.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/telescope-search(.iife)?.js",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=600, must-revalidate"
+        }
+      ]
+    }
+  ]
+}

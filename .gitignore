@@ -1,0 +1,8 @@
+node_modules
+dist
+site-dist
+.vercel
+.impeccable
+.DS_Store
+*.log
+/*.png

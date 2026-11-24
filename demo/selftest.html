@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Telescope Search self-test</title>
+  <style>body{margin:0;font:14px/1.5 ui-monospace, Menlo, monospace;background:#fff;color:#141416}header{display:flex;justify-content:flex-end;padding:26px 28px}pre{padding:0 28px}</style>
+</head>
+<body>
+  <header>
+    <telescope-search>
+      <a href="#work" data-description="Selected projects">Work</a>
+      <a href="#pricing" data-description="Three fixed packages" data-keywords="cost">Pricing</a>
+      <a href="#journal" data-description="Notes on design">Journal</a>
+      <a href="#journal-framer" data-description="Journal · 6 min read">Why I build in Framer</a>
+      <a href="#contact" data-description="Start a project">Contact</a>
+    </telescope-search>
+  </header>
+  <pre id="out">running…</pre>
+  <script type="module" src="./selftest.ts"></script>
+</body>
+</html>

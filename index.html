@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Telescope Search</title>
+  <meta name="description" content="A site search that pulls out like a telescope: the field slides out first, then the rings click into place.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/demo/site.css">
+</head>
+<body class="demo">
+  <main class="ts-stage" id="stage">
+    <p class="ts-tip">Click the field, or press <kbd>/</kbd></p>
+    <telescope-search>
+      <a href="#work" data-description="Selected projects, 2023 to now">Work</a>
+      <a href="#services" data-description="Websites designed and built in Framer">Services</a>
+      <a href="#pricing" data-description="Three fixed packages, from €2,400" data-keywords="cost price rates">Pricing</a>
+      <a href="#about" data-description="Who builds your site and how">About</a>
+      <a href="#journal" data-description="Notes on design and building">Journal</a>
+      <a href="#journal-framer" data-description="Journal · 6 min read">Why I build in Framer</a>
+      <a href="#journal-launch" data-description="Journal · 4 min read">A checklist before you launch</a>
+      <a href="#journal-homepage" data-description="Journal · 8 min read">Writing a homepage that sells</a>
+      <a href="#faq" data-description="Ownership, hosting, timelines">FAQ</a>
+      <a href="#contact" data-description="Start a project, reply within a day">Contact</a>
+    </telescope-search>
+  </main>
+  <a class="pg-link" href="/playground">Open the playground</a>
+  <script type="module" src="/demo/demo.ts"></script>
+</body>
+</html>

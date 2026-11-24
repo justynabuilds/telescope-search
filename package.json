@@ -1,0 +1,72 @@
+{
+  "name": "@justbuilt/telescope-search",
+  "version": "0.1.0",
+  "description": "Telescope Search: a site search that pulls out like a telescope. The field slides out first, then the collar rings click into place, and the results slide down from under the tube. Ships as a web component and a React component on one framework-free engine.",
+  "private": true,
+  "license": "SEE LICENSE IN LICENSE.md",
+  "author": "Justyna Dabrowska",
+  "homepage": "https://telescope-search.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/justynabuilds/telescope-search.git"
+  },
+  "bugs": {
+    "url": "https://github.com/justynabuilds/telescope-search/issues"
+  },
+  "keywords": [
+    "web-component",
+    "custom-element",
+    "react",
+    "search",
+    "site-search",
+    "command-palette",
+    "animation",
+    "ui-component",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "type": "module",
+  "main": "./dist/telescope-search.js",
+  "module": "./dist/telescope-search.js",
+  "types": "./dist/types/element/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/element/index.d.ts",
+      "import": "./dist/telescope-search.js",
+      "default": "./dist/telescope-search.iife.js"
+    },
+    "./react": "./src/react/TelescopeSearch.tsx",
+    "./core": "./src/core/engine.ts"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "vite --port 4176",
+    "build": "vite build && tsc -p tsconfig.types.json",
+    "build:site": "vite build && vite build --config vite.site.config.ts && cp dist/telescope-search.iife.js dist/telescope-search.js site-dist/",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test \"test/*.test.ts\"",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "typescript": "^5.8.0",
+    "vite": "^6.3.0"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  }
+}
