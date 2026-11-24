@@ -93,7 +93,7 @@ For deeper styling use the parts `::part(field)`, `::part(eyepiece)`, `::part(co
 
 - The whole closed telescope is clickable. Hovering pulls the field out a little; pressing pushes it in a touch before the pull.
 - Opening is a chain: the long tube moves first and takes each collar along once it is most of the way out. Every tube is driven into a hard stop, so it knocks, rebounds a little and clicks. Closing runs the chain the other way.
-- The field is a combobox: ArrowUp and ArrowDown move the pick, Enter opens it, Escape closes and returns focus to the eyepiece. A click outside or tabbing away also closes it.
+- The field is a combobox: ArrowUp and ArrowDown move the pick, Enter opens it, Escape closes it. Focus goes back where it came from: to the eyepiece if you opened it from there with the keyboard, otherwise to whatever had it before. A click outside or tabbing away also closes it.
 - The result count is announced to screen readers as you type.
 - Touch: no hover state; a tap opens it, with a tiny vibration on each knock.
 - `prefers-reduced-motion`: the telescope opens and closes without motion, and the sheet appears without sliding.

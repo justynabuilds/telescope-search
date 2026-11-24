@@ -109,7 +109,16 @@ async function run() {
   await wait(200)
   check("/ opens it from anywhere on the page", ts.open)
   key(input, "Escape")
-  check("escape closes and returns focus to the eyepiece", !ts.open && root.activeElement === base)
+  check("escape after / closes without a focus ring on the eyepiece", !ts.open && root.activeElement !== base)
+  await wait(1500)
+
+  base.focus()
+  base.click() // a click with detail 0, like Enter on the focused eyepiece
+  await wait(300)
+  check("enter on the eyepiece opens it", ts.open)
+  key(input, "Escape")
+  check("escape then hands focus back to the eyepiece", !ts.open && root.activeElement === base)
+  base.blur()
   await wait(1500)
 
   document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }))

@@ -8,7 +8,7 @@ export const styles = /* css */ `
   --ts-muted:#8E8E95;
   --ts-shade:#3C3C50;
   --ts-shadow:16 18 40;
-  --ts-focus:rgb(20 20 21 / .45);
+  --ts-focus:rgb(20 20 21 / .32);
   --ts-font:inherit;
   position:relative;display:inline-block;vertical-align:middle;z-index:50;
   font-family:var(--ts-font);-webkit-font-smoothing:antialiased;
@@ -40,7 +40,7 @@ export const styles = /* css */ `
   box-shadow:inset 0 1px 0 #fff, inset 0 -1px 0 rgb(var(--ts-shadow) / .06),
     0 0 0 .5px rgb(var(--ts-shadow) / .18), var(--ts-joint, -2px) 0 3px -1px rgb(var(--ts-shadow) / .15),
     0 1px 2px rgb(var(--ts-shadow) / .06), 0 12px 24px -14px rgb(var(--ts-shadow) / .36)}
-.base:focus-visible{outline:2px solid var(--ts-focus);outline-offset:2px}
+.base:focus-visible{outline:1.5px solid var(--ts-focus);outline-offset:3px}
 .base svg{width:18px;height:18px;display:block;position:relative}
 .seg[data-k="1"]{height:44px;border-radius:3.5px 22px 22px 3.5px;z-index:3}
 .seg[data-k="2"]{height:40px;border-radius:2.5px 20px 20px 2.5px;z-index:2}
@@ -82,14 +82,14 @@ export const styles = /* css */ `
 
 /* results: one sheet that slides down from under the tube */
 .drop{position:absolute;top:48px;padding:0 12px 32px;overflow:hidden;pointer-events:none;box-sizing:border-box}
-.panel{position:relative;margin-top:8px;border-radius:18px;padding:6px;height:0;box-sizing:border-box;
+/* the sheet grows down from just under the field: its top edge stays put, its bottom edge travels,
+   and each result fades in as the edge reaches it */
+.panel{position:relative;margin-top:8px;border-radius:18px;padding:6px;height:12px;box-sizing:border-box;overflow:hidden;opacity:0;
   background:linear-gradient(180deg, var(--ts-tube) 0%, color-mix(in srgb, var(--ts-tube) 98.5%, var(--ts-shade)) 100%);
   box-shadow:inset 0 1px 0 rgb(255 255 255 / .9), 0 0 0 .5px rgb(var(--ts-shadow) / .15),
     0 1px 2px rgb(var(--ts-shadow) / .05), 0 14px 30px -16px rgb(var(--ts-shadow) / .3);
-  /* far enough up that its shadow is clipped too */
-  transform:translateY(calc(-100% - 48px));
-  transition:transform .28s cubic-bezier(.5,0,.75,0), height .32s cubic-bezier(.2,.8,.2,1)}
-.drop[data-shown] .panel{transform:none;pointer-events:auto;transition:transform .5s cubic-bezier(.16,1,.3,1), height .32s cubic-bezier(.2,.8,.2,1)}
+  transition:height .26s cubic-bezier(.4,0,.2,1), opacity .16s ease .1s}
+.drop[data-shown] .panel{opacity:1;pointer-events:auto;transition:height .44s cubic-bezier(.22,1,.36,1), opacity .14s ease}
 .hl{position:absolute;top:0;left:6px;right:6px;border-radius:12px;opacity:0;
   background:linear-gradient(180deg, rgb(var(--ts-shadow) / .035), rgb(var(--ts-shadow) / .055));
   box-shadow:inset 0 0 0 .5px rgb(var(--ts-shadow) / .06);

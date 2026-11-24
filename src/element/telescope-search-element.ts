@@ -157,8 +157,9 @@ export class TelescopeSearchElement extends HTMLElement {
     // the whole closed telescope is the button; the eyepiece also closes it again
     this.track.addEventListener("click", (e) => {
       const t = e.target as Element
-      if (t.closest(".base")) this.setOpen(!this.open)
-      else if (!this.open && t.closest(".seg")) this.setOpen(true)
+      // a click with detail 0 is Enter or Space on the focused eyepiece
+      if (t.closest(".base")) this.setOpen(!this.open, true, e.detail === 0 ? "keyboard" : "pointer")
+      else if (!this.open && t.closest(".seg")) this.setOpen(true, true, "pointer")
     })
     // pressing pushes the tube in a touch first, like taking hold of it before the pull
     this.track.addEventListener("pointerdown", (e) => {
@@ -346,8 +347,17 @@ export class TelescopeSearchElement extends HTMLElement {
 
   // ---------- behaviour ----------
 
-  /** `refocus`: closing from the keyboard hands focus back to the eyepiece; a click elsewhere just lets go of it. */
-  private setOpen(open: boolean, refocus = true) {
+  /** How it was opened, so closing hands focus back the right way. */
+  private openedBy: "pointer" | "keyboard" | "other" = "other"
+  /** What had focus before a shortcut or code opened it. */
+  private focusBefore: HTMLElement | null = null
+
+  /**
+   * `refocus` is true when closing from the keyboard. Focus then goes back where it came from: to the eyepiece
+   * (with a ring) only if it was opened from the eyepiece with the keyboard, to whatever had it before a shortcut,
+   * and nowhere after a click. Closing with a click elsewhere just lets go of it.
+   */
+  private setOpen(open: boolean, refocus = true, by: "pointer" | "keyboard" | "other" = "other") {
     if (open === this.open) {
       if (open) this.input.focus({ preventScroll: true })
       return
@@ -357,6 +367,10 @@ export class TelescopeSearchElement extends HTMLElement {
       clearTimeout(this.closeTimer)
       if (this.closing) this.closing = false
       else {
+        this.openedBy = by
+        let a = document.activeElement as HTMLElement | null
+        while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement as HTMLElement
+        this.focusBefore = a && a !== document.body && !this.root.contains(a) ? a : null
         this.layout() // the field may have moved since the last measure
         this.engine.setOpen(true)
       }
@@ -371,7 +385,8 @@ export class TelescopeSearchElement extends HTMLElement {
       this.reflect(false)
       this.input.tabIndex = -1
       if (this.root.activeElement === this.input) {
-        if (refocus) this.base.focus({ preventScroll: true })
+        if (refocus && this.openedBy === "keyboard") this.base.focus({ preventScroll: true })
+        else if (refocus && this.focusBefore?.isConnected) this.focusBefore.focus({ preventScroll: true })
         else this.input.blur()
       }
       const wait = this.shown && !this.motion.matches ? SHEET_OUT_MS : 0
@@ -447,14 +462,12 @@ export class TelescopeSearchElement extends HTMLElement {
     const h = this.list.offsetHeight + 12
     const still = this.motion.matches
     if (!this.shown) {
-      // first results: size the sheet while it is hidden, then slide it down; the rows settle in after it
-      this.panel.style.transition = "none"
-      this.panel.style.height = `${h}px`
+      // first results: the sheet grows down from under the field; each row fades in as the bottom edge reaches it
       void this.panel.offsetHeight
-      this.panel.style.transition = ""
       this.moveHl(true)
       this.showSheet(true)
-      if (!still) rows.forEach((r, i) => r.animate([{ opacity: 0, transform: "translateY(-6px)" }, { opacity: 1, transform: "none" }], { duration: 320, delay: 90 + i * 32, easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" }))
+      this.panel.style.height = `${h}px`
+      if (!still) rows.forEach((r) => r.animate([{ opacity: 0, transform: "translateY(-4px)" }, { opacity: 1, transform: "none" }], { duration: 300, delay: 20 + (r.offsetTop / h) * 170, easing: "cubic-bezier(.22,1,.36,1)", fill: "backwards" }))
     } else {
       this.panel.style.height = `${h}px`
       this.moveHl(false)
@@ -480,6 +493,7 @@ export class TelescopeSearchElement extends HTMLElement {
   }
 
   private showSheet(on: boolean) {
+    if (!on) this.panel.style.height = ""
     this.shown = on
     this.drop.toggleAttribute("data-shown", on)
     this.input.setAttribute("aria-expanded", String(on && this.open))

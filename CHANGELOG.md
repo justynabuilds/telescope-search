@@ -6,7 +6,8 @@ All notable changes to this project are listed here. Versions follow [semantic v
 
 - Smoother open and close. The long tube now glides home without overshooting, the text fades between "Search" and "Search pages" instead of swapping, and the tubes start back while the results sheet is still tucking in.
 - The click sound is set up when nothing is moving, so the first pull no longer stutters.
-- Picking a result with the mouse no longer leaves a focus ring on the eyepiece; focus only goes back to it when you close with the keyboard.
+- The results sheet grows down from just under the field, and each result fades in as its edge reaches it, instead of a blank sheet sliding in.
+- Closing hands focus back where it came from: to the eyepiece (with a lighter ring) only when it was opened from the eyepiece with the keyboard, to whatever had focus before a `/` or ⌘K, and nowhere after a click. A mouse pick never leaves a ring.
 
 ## 0.1.0
 
